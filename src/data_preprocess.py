@@ -2,15 +2,15 @@
 import pandas as pd
 import numpy as np
 import json
-from sklearn.preprocessing import RobustScaler
-from sklearn.model_selection import train_test_split    
-from imblearn.under_sampling import RandomUnderSampler
 from pathlib import Path
+from sklearn.model_selection import train_test_split   
+from sklearn.preprocessing import RobustScaler
+from imblearn.under_sampling import RandomUnderSampler
 
 
 def preprocess_data(
     data_path: str = "data/raw/creditcard.csv",
-    output_dir: str = "data/processed",
+    output_dir: str = "data/preprocess",
     test_size: float = 0.2,             # Proportion of data to be used for testing
     random_state: int = 42              # Random seed for reproducibility
     ) -> tuple:
@@ -21,51 +21,53 @@ def preprocess_data(
 
     # ---------- Preprocessing Steps ----------
 
-    # 1. Scale Time and Amount
-    time_scaler = RobustScaler()
-    amount_scaler = RobustScaler()
-    
-    df['Time'] = time_scaler.fit_transform(df['Time'].values.reshape(-1, 1))
-    df['Amount'] = amount_scaler.fit_transform(df['Amount'].values.reshape(-1, 1))
-    
-    # 2. Handle class imbalance
-    X = df.drop('Class', axis=1)
-    y = df['Class']
-    sampler = RandomUnderSampler(random_state=random_state)
-    X_res, y_res = sampler.fit_resample(X, y)
-    
-    # 3. Train-test split
+    # ----------- 1. Split BEFORE scaling -----------
+    X = df.drop("Class", axis=1)
+    y = df["Class"]
+
     X_train, X_test, y_train, y_test = train_test_split(
-        X_res, y_res, 
-        test_size=test_size, 
+        X, y,
+        test_size=test_size,
         random_state=random_state,
-        stratify=y_res
+        stratify=y
     )
 
-    # ---------- Save Preprocessed Data ----------
+     # ----------- 2. Fit scalers ONLY on training data -----------
+    time_scaler = RobustScaler()
+    amount_scaler = RobustScaler()
 
-    # Save scaler parameters
+    X_train['Time'] = time_scaler.fit_transform(X_train[['Time']])
+    X_train['Amount'] = amount_scaler.fit_transform(X_train[['Amount']])
+
+    # Apply the same scaling to test set
+    X_test['Time'] = time_scaler.transform(X_test[['Time']])
+    X_test['Amount'] = amount_scaler.transform(X_test[['Amount']])
+
+     # ----------- 3. Undersample ONLY the training set -----------
+    sampler = RandomUnderSampler(random_state=random_state)
+    X_train_res, y_train_res = sampler.fit_resample(X_train, y_train)
+
+    # ----------- 4. Save scaler parameters -----------
     scaler_params = {
-        'time_mean': float(time_scaler.center_[0]),
+        'time_center': float(time_scaler.center_[0]),
         'time_scale': float(time_scaler.scale_[0]),
-        'amount_mean': float(amount_scaler.center_[0]),
+        'amount_center': float(amount_scaler.center_[0]),
         'amount_scale': float(amount_scaler.scale_[0])
     }
     with open(f"{output_dir}/scaler_params.json", "w") as f:
         json.dump(scaler_params, f)
-    
-    # Save processed data
-    X_train.to_parquet(f"{output_dir}/X_train.parquet")
+    # ----------- 5. Save preprocessed data -----------
+    X_train_res.to_parquet(f"{output_dir}/X_train.parquet")
     X_test.to_parquet(f"{output_dir}/X_test.parquet")
-    y_train.to_frame().to_parquet(f"{output_dir}/y_train.parquet") 
+    pd.DataFrame(y_train_res).to_parquet(f"{output_dir}/y_train.parquet")
     y_test.to_frame().to_parquet(f"{output_dir}/y_test.parquet")
-    
-    # Save sample of processed data for testing
-    sample = X_train.head(100).copy()
-    sample['Class'] = y_train.head(100)
+
+    # Sample 100 rows for quick inspection/testing
+    sample = X_train_res.head(100).copy()
+    sample['Class'] = y_train_res.head(100)
     sample.to_csv(f"{output_dir}/sample_preprocessed.csv", index=False)
-    
-    return X_train, X_test, y_train, y_test
+
+    return X_train_res, X_test, y_train_res, y_test          
 
 
 """ Partition data for federated learning
