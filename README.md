@@ -18,6 +18,7 @@ This branch contains the secure preprocessing pipeline for federated fraud detec
 - ✅ **Data Testing**: Comprehensive unit tests
 
 ## 📂 Project Structure
+<pre>
 .
 ├── data/
 │   ├── raw/                   # Original datasets
@@ -34,7 +35,8 @@ This branch contains the secure preprocessing pipeline for federated fraud detec
 │   ├── test_preprocess.py     # Module 1 tests
 ├── requirements.txt
 └── setup.py
-
+    
+</pre>
 ## 🛠️ Installation
 
 ```bash
