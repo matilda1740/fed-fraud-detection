@@ -2,28 +2,38 @@
 
 A secure framework for cross-bank fraud detection using Federated Learning (FL) with Differential Privacy (DP) and Homomorphic Encryption (HE).
 
-## 📌 Overview
+## Module 1 - Data Preprocessing & Partitioning 
 
-This repository contains two core modules:
-- **Module 1**: Data Preprocessing & Partitioning  
-- **Module 2**: Model Training & Evaluation
+## 📌 Overview 
+
+This branch contains the secure preprocessing pipeline for federated fraud detection with privacy-preserving data preparation.
 
 ## ✨ Features
 
-### Module 1: Data Preprocessing
-- ✅ Robust feature scaling (`Time`/`Amount` columns)
-- ✅ Class imbalance handling via undersampling
-- ✅ Secure client data partitioning for FL
-- ✅ Parquet format storage with scaler metadata
-- ✅ Comprehensive unit tests
+- ✅ **Data Validation**: Sanity checks for missing values & data types 
+- ✅ **Class Balancing**: `RandomUnderSampler` for fraud/legit ratio adjustment  
+- ✅ **Robust Scaling**: `Time` and `Amount` feature normalization 
+- ✅ **Client Partitioning**: Synthetic bank splits for federated learning  
+- ✅ **Data Versioning**: Parquet + JSON metadata storage  
+- ✅ **Data Testing**: Comprehensive unit tests
 
-### Module 2: Model Training
-- 🧠 Optimized neural architecture with dropout/BN
-- ⚖️ Focal Loss for class imbalance mitigation
-- 📉 Precision-Recall AUC & F1-score metrics
-- 🚀 GPU acceleration support
-- 🔄 Dynamic learning rate scheduling
-
+## 📂 Project Structure
+.
+├── data/
+│   ├── raw/                   # Original datasets
+│   ├── preprocess/            # PreProcessed features
+│   └── partitions/            # Client-specific data splits
+├── notebooks/
+│   ├── 01_exploratory.ipynb
+├── src/
+│   ├── __init__.py            # Empty File
+│   ├── data_preprocess.py     # Module 1 core logic
+├── scripts/
+│   ├── run_preprocess.py      # Module 1 entry point
+├── tests/                     
+│   ├── test_preprocess.py     # Module 1 tests
+├── requirements.txt
+└── setup.py
 
 ## 🛠️ Installation
 
@@ -42,28 +52,32 @@ pip install -r requirements.txt
 
 # Install project as editable package
 pip install -e .
+```
 
-## 📂 Project Structure
-.
-├── data/
-│   ├── raw/                   # Original datasets
-│   ├── preprocess/            # PreProcessed features
-│   └── partitions/            # Client-specific data splits
-├── notebooks/
-│   ├── 01_data_preprocess.ipynb
-│   └── 02_model_train_eval.ipynb
-├── src/
-│   ├── __init__.py            # Empty File
-│   ├── data_preprocess.py     # Module 1 core logic
-│   ├── base_model.py          # Module 2 model architecture
-│   └── training.py            # Training utilities
-├── scripts/
-│   ├── run_preprocess.py      # Module 1 entry point
-│   └── model_training.py      # Module 2 entry point
-├── tests/                     
-│   ├── test_preprocess.py     # Module 1 tests
-│   ├── test_model.py          # Module 2 tests
-├── requirements.txt
-└── setup.py
+## 🚀 Usage
 
+### Default Preprocessing
 
+```bash
+python scripts/run_preprocess.py
+```
+
+### Custom Parameters
+
+```bash
+python scripts/run_preprocess.py \
+    --input data/raw/your_data.csv \
+    --output data/custom_processed \
+    --clients 8 \
+    --test_size 0.15
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Module 1 specific tests
+pytest tests/test_preprocess.py -v
+```
