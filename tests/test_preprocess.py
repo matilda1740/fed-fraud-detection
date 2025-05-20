@@ -26,7 +26,6 @@ def test_preprocess_data_saves_files(raw_data_path):
     assert Path("data/preprocess/X_train.parquet").exists()
     assert Path("data/preprocess/y_test.parquet").exists()
     assert Path("data/preprocess/scaler_params.json").exists()
-    assert Path("data/preprocess/sample_preprocessed.csv").exists()
 
 # ------- Test Data Transforms -------
 

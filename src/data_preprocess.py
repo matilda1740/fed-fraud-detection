@@ -62,11 +62,6 @@ def preprocess_data(
     pd.DataFrame(y_train_res).to_parquet(f"{output_dir}/y_train.parquet")
     y_test.to_frame().to_parquet(f"{output_dir}/y_test.parquet")
 
-    # Sample 100 rows for quick inspection/testing
-    sample = X_train_res.head(100).copy()
-    sample['Class'] = y_train_res.head(100)
-    sample.to_csv(f"{output_dir}/sample_preprocessed.csv", index=False)
-
     return X_train_res, X_test, y_train_res, y_test          
 
 
