@@ -1,5 +1,5 @@
 {
-    "python.terminal.launchArgs": [
-        
-    ]
+  "python.pythonPath": ".venv/bin/python",
+  "terminal.integrated.env.osx": {},
+  "python.terminal.activateEnvironment": true
 }

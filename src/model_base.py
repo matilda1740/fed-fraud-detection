@@ -36,8 +36,10 @@ class FocalLoss(nn.Module):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
+        self.bce = nn.BCEWithLogitsLoss(reduction='none')
 
     def forward(self, inputs, targets):
-        ce_loss = F.cross_entropy(inputs, targets, reduction='none')
-        pt = torch.exp(-ce_loss)
-        return (self.alpha * (1-pt)**self.gamma * ce_loss).mean()
+        bce_loss = self.bce(inputs.squeeze(), targets.float())
+        pt = torch.exp(-bce_loss)
+        return (self.alpha * (1-pt)**self.gamma * bce_loss).mean()
+    
